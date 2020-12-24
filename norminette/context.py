@@ -143,12 +143,15 @@ arg_separator = [
 
 
 class Context:
-    def __init__(self, filename, tokens, debug=0):
+    def __init__(self, filename, tokens, debug=0, xcode_compatible=False, xcode_lenient=False):
         # File relative informations
         self.filename = filename.split('/')[-1]
         self.filetype = filename.split('.')[-1]  # ?
         self.tokens = tokens
         self.debug = int(debug)
+        self.xcode_compatible = xcode_compatible
+        self.xcode_lenient = xcode_lenient
+        self.target = filename
 
         # Rule relative informations
         self.history = []
@@ -186,7 +189,7 @@ class Context:
         return tkn.type == value
 
     def new_error(self, errno, tkn):
-        self.errors.append(NormError(errno, tkn.pos[0], tkn.pos[1]))
+        self.errors.append(NormError(errno, tkn.pos[0], tkn.pos[1], self.target, self.xcode_compatible, self.xcode_lenient))
 
     def get_parent_rule(self):
         if len(self.history) == 0:

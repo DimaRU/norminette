@@ -89,15 +89,22 @@ digits or '_'",
     "COMMENT_ON_INSTR": "Comment must be on its own line"
 }
 class NormError:
-    def __init__(self, errno, line, col=None):
+    def __init__(self, errno, line, col, target, xcode_compatible, xcode_lenient):
         self.errno = errno
         self.line = line
         self.col = col
-        if col is not None:
-            self.error_pos = f"(line: {self.line}, col: {self.col}):\t"
+        if xcode_compatible:
+            self.msg = ("warning" if xcode_lenient else "error")
+            if col is not None:
+                self.prefix = f"{target}:{self.line}:{self.col}: {self.msg}: "
+            else:
+                self.prefix = f"{target}:{self.line}: {self.msg}: "
         else:
-            self.error_pos = f"(line: {self.line}):\t "
-        self.prefix = f"\t{self.errno:<20} {self.error_pos:>21}"
+            if col is not None:
+                self.error_pos = f"(line: {self.line}, col: {self.col}):\t"
+            else:
+                self.error_pos = f"(line: {self.line}):\t "
+            self.prefix = f"\t{self.errno:<20} {self.error_pos:>21}"
         self.error_msg = f"{errors.get(self.errno, 'ERROR NOT FOUND')}"
 
     def __str__(self):

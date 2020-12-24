@@ -32,6 +32,8 @@ def main():
     parser.add_argument("file", help="File(s) or folder(s) you wanna run the parser on. If no file provided, runs on current folder.", default=[], action='append', nargs='*')
     parser.add_argument("-d", "--debug", action="count", help="Debug output (multiple values available)", default=0)
     parser.add_argument('-v', '--version', action='version', version='norminette ' + str(__version__))
+    parser.add_argument('-x', '--xcode', action='store_true', help="Xcode compatible error output", default=False)
+    parser.add_argument('-l', '--lenient', action='store_true', help="Downgrades errors to warnings", default=False)
     #parser.add_argument('-s', '--sentry', action='store_true', default=False)
     parser.add_argument('--cfile', action='store', help="Store C file content directly instead of filename")
     parser.add_argument('--hfile', action='store', help="Store header file content directly instead of filename")
@@ -83,7 +85,7 @@ def main():
                     source = content
                 lexer = Lexer(source)
                 tokens = lexer.get_tokens()
-                context = Context(target, tokens, debug)
+                context = Context(target, tokens, debug, args.xcode, args.lenient)
                 registry.run(context, source)
                 event[-1].set()
                 if context.errors:
@@ -100,7 +102,7 @@ def main():
             except KeyboardInterrupt as e:
                 event[-1].set()
                 sys.exit(1)
-    sys.exit(1 if has_err else 0)
+    sys.exit(1 if has_err and not args.lenient else 0)
 
 if __name__ == "__main__":
     main()
