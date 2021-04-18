@@ -1,11 +1,12 @@
-import unittest
-import glob
 import difflib
+import glob
 import sys
-from lexer import Lexer
-from registry import Registry
-from context import Context
+import unittest
 from io import StringIO
+
+from norminette.context import Context
+from norminette.lexer import Lexer
+from registry import Registry
 
 
 registry = Registry()
@@ -16,7 +17,7 @@ def read_file(filename):
         return f.read()
 
 
-class norminetteRuleTester():
+class norminetteRuleTester:
     def __init__(self):
         self.__tests = 0
         self.__failed = 0
@@ -30,18 +31,17 @@ class norminetteRuleTester():
             self.result.append("✓ ")
         else:
             self.__failed += 1
-            print("KO")
-            diff = difflib.ndiff(test.splitlines(keepends=True),
-                                 ref.splitlines(keepends=True))
+            print("Error")
+            diff = difflib.ndiff(test.splitlines(keepends=True), ref.splitlines(keepends=True))
             diff = list(diff)
             self.result.append("✗ ")
-            print(''.join(diff))
+            print("".join(diff))
 
     def test_file(self, filename):
         stdout = sys.stdout
         sys.stdout = buff = StringIO()
         lexer = Lexer(read_file(filename))
-        context = Context(filename, lexer.get_tokens(), debug=2)
+        context = Context(filename.split("/")[-1], lexer.get_tokens(), debug=2)
         registry.run(context, read_file(filename))
         reference_output = read_file(filename.split(".")[0] + ".out")
         sys.stdout = stdout
@@ -52,12 +52,12 @@ class norminetteRuleTester():
         files.sort()
         for f in files:
             self.__tests += 1
-            print("TESTER -", f.split('/')[-1], end=": ")
+            print("TESTER -", f.split("/")[-1], end=": ")
             try:
                 self.test_file(f)
             except Exception as e:
                 self.__failed += 1
-                print("KO")
+                print("Error")
                 print(e)
                 self.result.append("✗ ")
                 continue
@@ -65,10 +65,10 @@ class norminetteRuleTester():
         print(f"Total {self.__tests}")
         print("".join(self.result))
         print(f"Success {self.__success}, Failed {self.__failed}: ", end="")
-        print("✅ OK!" if self.__failed == 0 else "❌ KO!")
+        print("✅ OK!" if self.__failed == 0 else "❌ Error!")
 
         sys.exit(0 if self.__failed == 0 else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     norminetteRuleTester().run_tests()

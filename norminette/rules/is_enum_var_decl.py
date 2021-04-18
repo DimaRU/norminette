@@ -1,7 +1,5 @@
-from lexer import Token
-from rules import PrimaryRule
-from scope import *
-from context import GlobalScope, UserDefinedType, ControlStructure, Function, UserDefinedEnum
+from norminette.rules import PrimaryRule
+from norminette.scope import UserDefinedEnum
 
 
 lbrackets = ["LBRACE", "LPARENTHESIS", "LBRACKET"]
@@ -11,7 +9,7 @@ rbrackets = ["RBRACE", "RPARENTHESIS", "RBRACKET"]
 class IsEnumVarDecl(PrimaryRule):
     def __init__(self):
         super().__init__()
-        self.priority = 9
+        self.priority = 30
         self.scope = [UserDefinedEnum]
 
     def assignment_right_side(self, context, pos):
@@ -54,7 +52,7 @@ class IsEnumVarDecl(PrimaryRule):
                 i -= 1
                 if ret is False:
                     return False, pos
-            elif context.check_token(i, ['SPACE', "TAB", "MULT", "BWISE_AND", "NEWLINE"]):
+            elif context.check_token(i, ["SPACE", "TAB", "MULT", "BWISE_AND", "NEWLINE"]):
                 pass
             elif parenthesis == 0 and brackets == 0 and braces == 0:
                 return False, 0
@@ -67,7 +65,7 @@ class IsEnumVarDecl(PrimaryRule):
 
     def run(self, context):
         """
-            Enum have special var declarations so this catches these specific variables
+        Enum have special var declarations so this catches these specific variables
         """
         ret, i = self.var_declaration(context, 0)
         if ret is False:

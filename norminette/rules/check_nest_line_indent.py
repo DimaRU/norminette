@@ -1,5 +1,5 @@
-from rules import Rule
-from scope import *
+from norminette.rules import Rule
+
 
 operators = [
     "RIGHT_ASSIGN",
@@ -17,7 +17,6 @@ operators = [
     "EQUALS",
     "NOT_EQUAL",
     "ASSIGN",
-    "SEMI_COLON",
     "DOT",
     "NOT",
     "MINUS",
@@ -39,6 +38,7 @@ operators = [
 ]
 nest_kw = ["RPARENTHESIS", "LPARENTHESIS", "NEWLINE"]
 
+
 class CheckNestLineIndent(Rule):
     def __init__(self):
         super().__init__()
@@ -47,30 +47,36 @@ class CheckNestLineIndent(Rule):
     def find_nest_content(self, context, nest, i):
         expected = context.scope.indent + nest
         while context.peek_token(i) is not None:
-            if context.check_token(i, "LPARENTHESIS") is True:
-                nest += 1
+            if context.check_token(i, ["LPARENTHESIS", "LBRACE", "LBRACKET"]) is True:
                 i += 1
-                i = self.find_nest_content(context, nest, i)
+                i = self.find_nest_content(context, nest + 1, i) + 1
+            if context.check_token(i, ["RBRACE", "RBRACKET", "RPARENTHESIS"]):
+                return i
             elif context.check_token(i, "NEWLINE") is True:
                 if context.check_token(i - 1, operators):
                     context.new_error("EOL_OPERATOR", context.peek_token(i - 1))
+                if context.check_token(i, "SEMI_COLON") is True:
+                    return i
                 indent = 0
                 i += 1
                 while context.check_token(i, "TAB") is True:
                     indent += 1
                     i += 1
+                if context.check_token(i, ["RBRACE", "RBRACKET", "RPARENTHESIS"]):
+                    expected -= 1
                 if indent > expected:
-                    context.new_error("TOO_MANY_TAB", context.peek_token(0))
+                    context.new_error("TOO_MANY_TAB", context.peek_token(i))
                 elif indent < expected:
-                    context.new_error("TOO_FEW_TAB", context.peek_token(0))
-            elif context.check_token(i, "RPARENTHESIS"):
-                return i
-            i += 1
+                    context.new_error("TOO_FEW_TAB", context.peek_token(i))
+                if context.check_token(i, ["RBRACE", "RBRACKET", "RPARENTHESIS"]):
+                    expected += 1
+            else:
+                i += 1
         return i
 
     def run(self, context):
         """
-            Each nest (parenthesis, brackets, braces) adds a tab to the general indentation
+        Each nest (parenthesis, brackets, braces) adds a tab to the general indentation
         """
         i = 0
         expected = context.scope.indent

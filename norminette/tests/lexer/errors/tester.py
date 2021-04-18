@@ -1,9 +1,9 @@
-
-import sys
-import glob
 import difflib
-from lexer import Lexer
-from lexer import TokenError
+import glob
+import sys
+
+from norminette.lexer import Lexer
+from norminette.lexer import TokenError
 from tests.lexer.errors.dict import failed_tokens_tests as test_dict
 
 
@@ -12,8 +12,7 @@ def read_file(filename):
         return f.read()
 
 
-class norminetteTester():
-
+class norminetteTester:
     def __init__(self):
         self.__tests = 0
         self.__failed = 0
@@ -24,7 +23,7 @@ class norminetteTester():
         try:
             diff = "".join(test())
             self.__failed += 1
-            print(test_line + "KO")
+            print(test_line + "Error")
             print(diff, end="")
             self.result.append("✗ ")
         except TokenError as e:
@@ -33,12 +32,11 @@ class norminetteTester():
                 self.result.append("✓ ")
             else:
                 self.__failed += 1
-                print(test_line + "KO")
-                diff = difflib.ndiff(e.msg.splitlines(),
-                                     ref.splitlines())
+                print(test_line + "Error")
+                diff = difflib.ndiff(e.msg.splitlines(), ref.splitlines())
                 diff = list(diff)
                 self.result.append("✗ ")
-                print(''.join(diff))
+                print("".join(diff))
 
     def main(self):
         print("\n\nTesting error cases:\n")
@@ -54,10 +52,10 @@ class norminetteTester():
         print(f"Total {self.__tests}")
         print("".join(self.result))
         print(f"Success {self.__success}, Failed {self.__failed}: ", end="")
-        print("✅ OK!" if self.__failed == 0 else "❌ KO!")
+        print("✅ OK!" if self.__failed == 0 else "❌ Error!")
 
         sys.exit(0 if self.__failed == 0 else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     norminetteTester().main()

@@ -46,7 +46,9 @@ digits or '_'",
     "EMPTY_LINE_FUNCTION": "Empty line in function",
     "EMPTY_LINE_EOF": "Empty line at end of file",
     "WRONG_SCOPE_VAR": "Variable declared in incorrect scope",
+    "IMPLICIT_VAR_TYPE": "Missing type in variable declaration",
     "VAR_DECL_START_FUNC": "Variable declaration not at start of function",
+    "TOO_MANY_VARS_FUNC": "Too many variables declarations in a function",
     "TOO_MANY_FUNCS": "Too many functions in file",
     "BRACE_SHOULD_EOL": "Expected newline after brace",
     "CONSECUTIVE_NEWLINES": "Consecutive newlines",
@@ -86,8 +88,11 @@ digits or '_'",
     "BRACE_NEWLINE": "Expected newline before brace",
     "EXP_NEWLINE": "Expected newline after control structure",
     "ARG_TYPE_UKN": "Unrecognized variable type",
-    "COMMENT_ON_INSTR": "Comment must be on its own line"
+    "COMMENT_ON_INSTR": "Comment must be on its own line",
+    "COMMA_START_LINE": "Comma at line start",
 }
+
+
 class NormError:
     def __init__(self, errno, line, col, target, xcode_compatible, xcode_lenient):
         self.errno = errno
@@ -101,10 +106,10 @@ class NormError:
                 self.prefix = f"{target}:{self.line}: {self.msg}: "
         else:
             if col is not None:
-                self.error_pos = f"(line: {self.line}, col: {self.col}):\t"
+                self.error_pos = f"(line: {(str(self.line)).rjust(3)}, col: {(str(self.col)).rjust(3)}):\t"
             else:
-                self.error_pos = f"(line: {self.line}):\t "
-            self.prefix = f"\t{self.errno:<20} {self.error_pos:>21}"
+                self.error_pos = f"(line: {(str(self.line)).rjust(3)}):\t "
+            self.prefix = f"Error: {self.errno:<20} {self.error_pos:>21}"
         self.error_msg = f"{errors.get(self.errno, 'ERROR NOT FOUND')}"
 
     def __str__(self):

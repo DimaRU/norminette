@@ -1,5 +1,5 @@
-from rules import Rule
-from scope import *
+from norminette.rules import Rule
+
 assigns = [
     "RIGHT_ASSIGN",
     "LEFT_ASSIGN",
@@ -20,11 +20,23 @@ class CheckAssignation(Rule):
         super().__init__()
         self.depends_on = ["IsAssignation"]
 
+    def check_brace_assign(self, context, i):
+        i += 1
+        deep = 1
+        while context.check_token(i, "RBRACE") is False and deep > 0:
+            i += 1
+        return True, i
+
     def check_assign_right(self, context, i):
         tmp_typ = None
         start = 0
         while context.check_token(i, "SEMI_COLON") is False:
             typ = None
+            if context.check_token(i, "LBRACE"):
+                ret, i = self.check_brace_assign(context, i)
+                if ret == False:
+                    return True, i
+                break
             if context.check_token(i, "LPARENTHESIS") is True:
                 start = i
                 tmp_typ, i = context.parenthesis_contain(i)
@@ -43,8 +55,8 @@ class CheckAssignation(Rule):
 
     def run(self, context):
         """
-            Only one assignation at a time
-            Unless the variable is static (or global), you cannot assign its value when you declare it.
+        Only one assignation at a time
+        Unless the variable is static (or global), you cannot assign its value when you declare it.
         """
         i = 0
         assign_present = False

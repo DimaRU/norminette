@@ -2,17 +2,29 @@
 
 ## Install:
 
-requires python3.7
+Requires python3.7+ (3.7, 3.8, 3.9)
 
+### Directly inside your global commands
+
+Install using pip.
 ```shell
-pip3 install -r requirements.txt
+python3 -m pip install --upgrade pip setuptools
+python3 -m pip install norminette
 ```
 
+To upgrade an existing install, use
+```shell
+python3 -m pip install --upgrade norminette
+```
 
-To install, simply run
+### Inside a virtual environment
+
+Using a virtual environment will avoid version conflicts with already globally installed packages.
 
 ```shell
-python3 setup.py install
+python3 -m venv venv
+source venv/bin/activate
+pip install norminette
 ```
 
 ## Usage

@@ -1,5 +1,7 @@
-from rules import Rule
 import math
+
+from norminette.rules import Rule
+
 keywords = [
     # C reserved keywords #
     "AUTO",
@@ -33,13 +35,11 @@ keywords = [
     "UNSIGNED",
     "VOID",
     "VOLATILE",
-    "WHILE", 
-    "IDENTIFIER"
+    "WHILE",
+    "IDENTIFIER",
 ]
-eol = [
-    "SEMI_COLON",
-    "LPARENTHESIS"
-]
+eol = ["SEMI_COLON", "LPARENTHESIS"]
+
 
 class CheckPrototypeIndent(Rule):
     def __init__(self):
@@ -48,14 +48,20 @@ class CheckPrototypeIndent(Rule):
 
     def run(self, context):
         """
-            All function prototypes names must be aligned on the same indentation
+        All function prototypes names must be aligned on the same indentation
         """
         i = 0
         type_identifier_nb = -1
         current_indent = 0
-        has_tab = False
+        id_length = 0
         buffer_len = 0
-        while context.check_token(i, eol) is False:
+        while context.check_token(i, ["SEMI_COLON"]) is False:
+            if context.check_token(i, "LPARENTHESIS") is True:
+                if context.parenthesis_contain(i)[0] == "pointer":
+                    i += 1
+                    continue
+                else:
+                    break
             if context.check_token(i, keywords) is True:
                 type_identifier_nb += 1
             i += 1
@@ -64,18 +70,18 @@ class CheckPrototypeIndent(Rule):
             if context.check_token(i, keywords) is True and type_identifier_nb > 0:
                 type_identifier_nb -= 1
                 if context.peek_token(i).length == 0:
-                    id_length = len(str(context.peek_token(i))) - 2
+                    id_length += len(str(context.peek_token(i))) - 2
                 else:
-                    id_length = context.peek_token(i).length
-                current_indent += math.floor((id_length + buffer_len) / 4)
-                buffer_len = 0
+                    id_length += context.peek_token(i).length
             elif context.check_token(i, "SPACE") is True and type_identifier_nb > 0:
                 buffer_len += 1
             elif context.check_token(i, "SPACE") is True and type_identifier_nb == 0:
                 context.new_error("SPACE_REPLACE_TAB", context.peek_token(i))
                 return True, i
             elif context.check_token(i, "TAB") is True and type_identifier_nb == 0:
-                has_tab += 1
+                if current_indent == 0:
+                    current_indent = math.floor((id_length + buffer_len) / 4)
+                    buffer_len = 0
                 current_indent += 1
             elif context.check_token(i, "IDENTIFIER") is True and type_identifier_nb == 0:
                 if context.scope.func_alignment == 0:

@@ -6,3 +6,14 @@ venv/
 **/__sandbox/
 launch_norminette.py
 *.egg-info
+dist/*
+build/*
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+.eggs
+bundle/
+pdf/*.out
+pdf/*.toc
+resources/
