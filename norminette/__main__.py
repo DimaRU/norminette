@@ -60,8 +60,16 @@ def main():
         help="Store header file content directly instead of filename",
     )
     parser.add_argument("-R", nargs=1, help="compatibility for norminette 2")
-    parser.add_argument('-x', '--xcode', action='store_true', help="Xcode compatible error output", default=False)
+    parser.add_argument('-c', '--xcode', action='store_true', help="Xcode compatible error output", default=False)
     parser.add_argument('-w', '--warnings', action='store_true', help="Downgrade errors to warnings", default=False)
+    parser.add_argument(
+        "-x",
+        "--exclude",
+        action='append',
+        help="Exclude file. May be used more than once.",
+        default=[]
+    )
+
     args = parser.parse_args()
     registry = Registry()
     targets = []
@@ -88,6 +96,8 @@ def main():
                     targets.append(arg)
     event = []
     for target in targets:
+        if target.split("/")[-1] in args.exclude:
+            continue
         if target[-2:] not in [".c", ".h"]:
             print(f"Error: {target} is not valid C or C header file")
         else:

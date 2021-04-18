@@ -50,6 +50,11 @@ norminette --xcode --warnings
 Xcode compatible output and downgrade errors to warnings
 
 ```
+norminette -x test.c
+```
+Exclude test.c from check
+
+```
 norminette -d
 ```
 Prevents stopping on various blocking errors
