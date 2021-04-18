@@ -45,9 +45,9 @@ norminette --xcode
 Xcode compatible output
 
 ```
-norminette --xcode --lenient
+norminette --xcode --warnings
 ```
-Xcode compatible output and downrgade errors to warnings
+Xcode compatible output and downgrade errors to warnings
 
 ```
 norminette -d

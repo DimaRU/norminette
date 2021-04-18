@@ -94,12 +94,12 @@ digits or '_'",
 
 
 class NormError:
-    def __init__(self, errno, line, col, target, xcode_compatible, xcode_lenient):
+    def __init__(self, errno, line, col, target, xcode_compatible, xcode_warnings):
         self.errno = errno
         self.line = line
         self.col = col
         if xcode_compatible:
-            self.msg = ("warning" if xcode_lenient else "error")
+            self.msg = ("warning" if xcode_warnings else "error")
             if col is not None:
                 self.prefix = f"{target}:{self.line}:{self.col}: {self.msg}: "
             else:

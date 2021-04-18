@@ -61,7 +61,7 @@ def main():
     )
     parser.add_argument("-R", nargs=1, help="compatibility for norminette 2")
     parser.add_argument('-x', '--xcode', action='store_true', help="Xcode compatible error output", default=False)
-    parser.add_argument('-l', '--lenient', action='store_true', help="Downgrades errors to warnings", default=False)
+    parser.add_argument('-w', '--warnings', action='store_true', help="Downgrade errors to warnings", default=False)
     args = parser.parse_args()
     registry = Registry()
     targets = []
@@ -102,7 +102,7 @@ def main():
                 tokens = lexer.get_tokens()
                 if args.only_filename == True:
                     target = target.split("/")[-1]
-                context = Context(target, tokens, debug, args.R, args.xcode, args.lenient)
+                context = Context(target, tokens, debug, args.R, args.xcode, args.warnings)
                 registry.run(context, source)
                 event[-1].set()
                 if context.errors:
@@ -118,7 +118,7 @@ def main():
             except KeyboardInterrupt as e:
                 event[-1].set()
                 sys.exit(1)
-    sys.exit(1 if has_err and not args.lenient else 0)
+    sys.exit(1 if has_err and not args.warnings else 0)
 
 
 if __name__ == "__main__":
