@@ -110,7 +110,9 @@ def main():
                     source = content
                 lexer = Lexer(source)
                 tokens = lexer.get_tokens()
-                if args.only_filename == True:
+                if args.xcode == True:
+                    target = os.path.abspath(target)
+                elif args.only_filename == True:
                     target = target.split("/")[-1]
                 context = Context(target, tokens, debug, args.R, args.xcode, args.warnings)
                 registry.run(context, source)
